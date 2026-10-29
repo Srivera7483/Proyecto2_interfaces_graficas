@@ -5,7 +5,7 @@
     <PathDelim Value="\"/>
     <General>
       <SessionStorage Value="InProjectDir"/>
-      <Title Value="Lazarus_client"/>
+      <Title Value="DataLogger UMA"/>
       <Scaled Value="True"/>
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
@@ -27,6 +27,9 @@
     <RequiredPackages>
       <Item>
         <PackageName Value="LazSerialPort"/>
+      </Item>
+      <Item>
+        <PackageName Value="tachartlazaruspkg"/>
       </Item>
       <Item>
         <PackageName Value="LCL"/>
@@ -54,8 +57,14 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
+      <OtherUnitFiles Value="..\\TLazSerial"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
+    <Parsing>
+      <SyntaxOptions>
+        <UseAnsiStrings Value="False"/>
+      </SyntaxOptions>
+    </Parsing>
     <Linking>
       <Options>
         <Win32>

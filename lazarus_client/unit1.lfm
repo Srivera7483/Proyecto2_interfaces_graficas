@@ -1,12 +1,292 @@
 object Form1: TForm1
-  Left = 200
-  Height = 240
-  Top = 155
-  Width = 320
-  Caption = 'Form1'
-  DesignTimePPI = 120
+  Left = 100
+  Height = 720
+  Top = 50
+  Width = 1100
+  Caption = 'DataLogger - Contaminacion Ambiental'
+  ClientHeight = 720
+  ClientWidth = 1100
+  DesignTimePPI = 96
   LCLVersion = '4.8.0.0'
-  object LazSerial1: TLazSerial
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  object pnlTop: TPanel
+    Left = 0
+    Height = 55
+    Top = 0
+    Width = 1100
+    Align = alTop
+    BevelInner = bvLowered
+    Caption = ''
+    Color = 1644825
+    ParentBackground = False
+    TabOrder = 0
+    object lblTitle: TLabel
+      Left = 8
+      Height = 35
+      Top = 10
+      Width = 500
+      Caption = 'DataLogger - Monitor de Contaminacion Ambiental'
+      Font.Color = clWhite
+      Font.Height = -21
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+    object pnlTHR: TPanel
+      Left = 700
+      Height = 50
+      Top = 2
+      Width = 390
+      BevelOuter = bvNone
+      Caption = ''
+      Color = 1644825
+      ParentBackground = False
+      TabOrder = 0
+      object lblTE: TLabel
+        Left = 10
+        Height = 14
+        Top = 5
+        Width = 80
+        Caption = 'Temperatura:'
+        Font.Color = clAqua
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object lblTEVal: TLabel
+        Left = 90
+        Height = 22
+        Top = 2
+        Width = 60
+        Caption = '-- C'
+        Font.Color = clYellow
+        Font.Height = -16
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object lblHR: TLabel
+        Left = 180
+        Height = 14
+        Top = 5
+        Width = 80
+        Caption = 'Humedad:'
+        Font.Color = clAqua
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object lblHRVal: TLabel
+        Left = 260
+        Height = 22
+        Top = 2
+        Width = 60
+        Caption = '-- %'
+        Font.Color = clYellow
+        Font.Height = -16
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+    end
+  end
+  object pnlCom: TPanel
+    Left = 0
+    Height = 45
+    Top = 55
+    Width = 1100
+    Align = alTop
+    BevelOuter = bvNone
+    Caption = ''
+    Color = clBtnFace
+    TabOrder = 1
+    object lblCOM: TLabel
+      Left = 8
+      Height = 14
+      Top = 15
+      Width = 60
+      Caption = 'Puerto COM:'
+    end
+    object edtCOM: TEdit
+      Left = 72
+      Height = 23
+      Top = 12
+      Width = 80
+      TabOrder = 0
+      Text = 'COM2'
+    end
+    object btnConnect: TBitBtn
+      Left = 160
+      Height = 27
+      Top = 10
+      Width = 100
+      Caption = 'Conectar'
+      Kind = bkOK
+      NumGlyphs = 0
+      OnClick = btnConnectClick
+      TabOrder = 1
+    end
+    object lblUMA: TLabel
+      Left = 280
+      Height = 14
+      Top = 15
+      Width = 70
+      Caption = 'Sensor UMA:'
+    end
+    object cmbUMA: TComboBox
+      Left = 355
+      Height = 23
+      Top = 12
+      Width = 80
+      ItemIndex = 0
+      OnChange = cmbUMAChange
+      Style = csDropDownList
+      TabOrder = 2
+      Items.Strings = (
+        'UMA1'
+        'UMA2'
+        'UMA3'
+        'UMA4'
+        'UMA5'
+      )
+    end
+    object chkSendFlask: TCheckBox
+      Left = 455
+      Height = 17
+      Top = 14
+      Width = 110
+      Caption = 'Enviar a Flask'
+      TabOrder = 3
+    end
+    object lblFlask: TLabel
+      Left = 570
+      Height = 14
+      Top = 15
+      Width = 80
+      Caption = 'URL Flask:'
+    end
+    object edtFlask: TEdit
+      Left = 650
+      Height = 23
+      Top = 12
+      Width = 240
+      TabOrder = 4
+      Text = 'http://127.0.0.1:5000/datos'
+    end
+  end
+  object ChartPM: TChart
+    Left = 0
+    Height = 320
+    Top = 100
+    Width = 700
+    AxisList = <
+      item
+        Title.Caption = 'ug/m3'
+        Title.LabelFont.Color = clDefault
+        Title.Visible = True
+      end
+      item
+        Alignment = calBottom
+        Title.Caption = 'Muestras'
+        Title.LabelFont.Color = clDefault
+        Title.Visible = True
+      end>
+    BackColor = clBlack
+    Title.Text.Strings = (
+      'Series de Tiempo: PM1.0 / PM2.5 / PM10'
+    )
+    Title.Font.Color = clBlack
+    TabOrder = 2
+    object SerieMP01: TLineSeries
+      AxisIndexX = 1
+      AxisIndexY = 0
+      ShowPoints = False
+      LineType = ltFromPrevious
+      Pen.Color = clRed
+      SeriesColor = clRed
+      Title = 'PM1.0 um'
+    end
+    object SerieMP25: TLineSeries
+      AxisIndexX = 1
+      AxisIndexY = 0
+      ShowPoints = False
+      LineType = ltFromPrevious
+      Pen.Color = clGreen
+      SeriesColor = clGreen
+      Title = 'PM2.5 um'
+    end
+    object SerieMP10: TLineSeries
+      AxisIndexX = 1
+      AxisIndexY = 0
+      ShowPoints = False
+      LineType = ltFromPrevious
+      Pen.Color = clBlue
+      SeriesColor = clBlue
+      Title = 'PM10 um'
+    end
+  end
+  object ChartHist: TChart
+    Left = 700
+    Height = 320
+    Top = 100
+    Width = 400
+    AxisList = <
+      item
+        Title.Caption = 'Conteo'
+        Title.LabelFont.Color = clDefault
+        Title.Visible = True
+      end
+      item
+        Alignment = calBottom
+        Title.Caption = 'Diametro (um)'
+        Title.LabelFont.Color = clDefault
+        Title.Visible = True
+      end>
+    BackColor = clBlack
+    Title.Text.Strings = (
+      'Histograma de Particulas'
+    )
+    Title.Font.Color = clBlack
+    TabOrder = 3
+    object HistBar: TBarSeries
+      AxisIndexX = 1
+      AxisIndexY = 0
+      BarPen.Color = clDefault
+      BarWidthPercent = 80
+      SeriesColor = clRed
+      Title = 'Histograma'
+    end
+  end
+  object memLog: TMemo
+    Left = 0
+    Height = 200
+    Top = 470
+    Width = 1100
+    Align = alBottom
+    Font.Name = 'Courier New'
+    Font.Height = -12
+    ReadOnly = True
+    ScrollBars = ssVertical
+    TabOrder = 4
+    WordWrap = False
+  end
+  object pnlStatus: TPanel
+    Left = 0
+    Height = 25
+    Top = 695
+    Width = 1100
+    Align = alBottom
+    BevelOuter = bvLowered
+    Caption = ''
+    TabOrder = 5
+    object lblStatus: TLabel
+      Left = 5
+      Height = 14
+      Top = 5
+      Width = 100
+      Caption = 'Desconectado'
+      Font.Color = clRed
+      Font.Style = [fsBold]
+      ParentFont = False
+    end
+  end
+  object MySerial: TLazSerial
     Active = False
     BaudRate = br__9600
     DataBits = db8bits
@@ -26,7 +306,15 @@ object Form1: TForm1
     SynSer.InterPacketTimeout = True
     Device = 'COM2'
     RcvLineCRLF = False
-    Left = 162
-    Top = 53
+    OnRxData = MySerialRxData
+    Left = 20
+    Top = 420
+  end
+  object tmrUI: TTimer
+    Enabled = True
+    Interval = 200
+    OnTimer = tmrUITimer
+    Left = 100
+    Top = 420
   end
 end
