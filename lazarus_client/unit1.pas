@@ -78,11 +78,8 @@ type
     aClr  : array[0..MAX_HIST-1] of TColor;
     // Seleccion UMA
     nUMA_Sel : Integer;
-    // Buffer serial
     sBufSerial: String;
-    // Estado conexion
     bConectado: Boolean;
-    // Flag nuevos datos
     bNuevosDatos: Boolean;
 
     procedure InicializarArreglos;
@@ -115,23 +112,20 @@ begin
   sBufSerial   := '';
   nUMA_Sel     := 1;
 
-  // Colores histograma
-  aClr[0] := clRed;    // 0.3 um
-  aClr[1] := clFuchsia;// 0.5 um
-  aClr[2] := clBlue;   // 1.0 um
-  aClr[3] := clGreen;  // 2.5 um
-  aClr[4] := clYellow; // 5.0 um
-  aClr[5] := TColor($000099FF); // 10 um - naranja
+  aClr[0] := clRed;
+  aClr[1] := clFuchsia;
+  aClr[2] := clBlue;
+  aClr[3] := clGreen;
+  aClr[4] := clYellow;
+  aClr[5] := TColor($000099FF);
 
   InicializarArreglos;
 
-  // Configurar combos UMA
   cmbUMA.Items.Clear;
   for i := 1 to 5 do
     cmbUMA.Items.Add('UMA' + IntToStr(i));
   cmbUMA.ItemIndex := 0;
 
-  // Puerto por defecto
   edtCOM.Text  := 'COM2';
   edtFlask.Text := 'http://127.0.0.1:5000/datos';
 
@@ -209,11 +203,9 @@ var
   sRecv: String;
   p: Integer;
 begin
-  // Leer datos del puerto serial
   sRecv := MySerial.ReadData;
   sBufSerial := sBufSerial + sRecv;
 
-  // Procesar lineas completas
   repeat
     p := Pos(#10, sBufSerial);
     if p > 0 then
@@ -239,7 +231,6 @@ begin
     aTokens.StrictDelimiter := True;
     aTokens.DelimitedText := sTrama;
 
-    // Trama: id,mp01,mp25,mp10,h03,h05,h10,h25,h50,h100,te,hr
     if aTokens.Count < 12 then Exit;
 
     nId  := StrToIntDef(aTokens[0],  0);
@@ -255,10 +246,11 @@ begin
     te   := StrToIntDef(aTokens[10], 0);
     hr   := StrToIntDef(aTokens[11], 0);
 
-    // Solo procesar la UMA seleccionada
+    if chkSendFlask.Checked then
+      Send_Data_To_Flask(nId, mp01, mp25, mp10, h03, h05, h10, h25, h50, h100, te, hr);
+
     if nId <> nUMA_Sel then Exit;
 
-    // Scrolling left: desplazar arreglos
     for i := 0 to MAX_SAMPLES-2 do
     begin
       aMP01[i] := aMP01[i+1];
@@ -269,7 +261,6 @@ begin
     aMP25[MAX_SAMPLES-1] := mp25;
     aMP10[MAX_SAMPLES-1] := mp10;
 
-    // Histograma
     aHisto[0] := h03;
     aHisto[1] := h05;
     aHisto[2] := h10;
@@ -277,16 +268,13 @@ begin
     aHisto[4] := h50;
     aHisto[5] := h100;
 
-    // Temperatura y humedad
     lblTEVal.Caption := IntToStr(te) + ' °C';
     lblHRVal.Caption := IntToStr(hr) + ' %';
 
     bNuevosDatos := True;
     Log(Format('UMA%d | PM1:%d PM2.5:%d PM10:%d | T:%d H:%d', [nId,mp01,mp25,mp10,te,hr]));
 
-    // Enviar a Flask si está activado
-    if chkSendFlask.Checked then
-      Send_Data_To_Flask(nId, mp01, mp25, mp10, h03, h05, h10, h25, h50, h100, te, hr);
+
   finally
     aTokens.Free;
   end;
@@ -351,7 +339,6 @@ begin
   oHTTP  := TFPHTTPClient.Create(nil);
   jData  := TJSONObject.Create;
   try
-    // Construir JSON
     jData.Add('id',   nId);
     jData.Add('mp01', mp01);
     jData.Add('mp25', mp25);
@@ -366,7 +353,6 @@ begin
     jData.Add('hr',   hr);
     sJSON := jData.AsJSON;
 
-    // Configurar y enviar
     oHTTP.AddHeader('Content-Type','application/json');
     oStream := TStringStream.Create(sJSON);
     try
